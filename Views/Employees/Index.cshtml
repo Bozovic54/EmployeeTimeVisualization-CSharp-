@@ -1,0 +1,34 @@
+﻿@model IEnumerable<Employee>
+
+@{
+    ViewData["Title"] = "Mateja Bozovic";
+}
+
+<h1>Report</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <p> Name </p>
+            </th>
+            <th>
+                <p> Hours </p>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        var rowClass = (item.IsBelowWorkingHoursLimit) ? "warning" : "";
+        <tr class="@rowClass">
+            <td>
+                    @Html.DisplayFor(modelItem => item.EmployeeName)
+            </td>
+            <td>
+                    @Html.DisplayFor(modelItem => item.TotalHoursWorked )
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
