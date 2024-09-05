@@ -53,6 +53,22 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
+            },
+            "OxyPlot.Core": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "OxyPlot.SkiaSharp": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "ScottPlot": {
+              "target": "Package",
+              "version": "[5.0.38, )"
+            },
+            "SkiaSharp": {
+              "target": "Package",
+              "version": "[2.88.8, )"
             }
           },
           "imports": [

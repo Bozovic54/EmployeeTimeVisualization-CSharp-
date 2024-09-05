@@ -1,7 +1,9 @@
 ﻿using C_Project.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-
+using OxyPlot;
+using OxyPlot.Series;
+using OxyPlot.SkiaSharp;
 
 public class EmployeesController : Controller
 {
@@ -39,7 +41,6 @@ public class EmployeesController : Controller
                             EndTimeUtc = employee.EndTimeUtc,
                             DeletedOn = employee.DeletedOn,
                             TotalHoursWorked = employee.TotalHoursWorked,
-
                         };
                         employees.Add(newEmployee);
                     }
@@ -61,6 +62,7 @@ public class EmployeesController : Controller
                 }
 
                 var sortedEmployees = employees.OrderByDescending(e => e.TotalHoursWorked).ToList();
+                TempData["Employees"] = JsonConvert.SerializeObject(sortedEmployees);
                 return View(sortedEmployees);
             }
             else
@@ -73,4 +75,53 @@ public class EmployeesController : Controller
             return View("Error", new ErrorViewModel { RequestId = $"Exception: {ex.Message}" });
         }
     }
+
+    [HttpPost]
+    public IActionResult GeneratePieChart()
+    {
+        try
+        {
+            var employees = JsonConvert.DeserializeObject<List<Employee>>(TempData["Employees"].ToString());
+            int totalHoursWorked = employees.Sum(e => e.TotalHoursWorked);
+
+            var plotModel = new PlotModel { Title = "Pie Chart" };
+            var pieSeries = new PieSeries
+            {
+                InsideLabelFormat = "{0:0.##}%",
+                OutsideLabelFormat = "{1:0.##}",
+                FontWeight = FontWeights.Bold,
+                StrokeThickness = 1,
+                FontSize = 14
+            };
+
+            foreach (var employee in employees)
+            {
+                float percentage = (float)employee.TotalHoursWorked / totalHoursWorked * 100;
+                pieSeries.Slices.Add(new PieSlice(employee.EmployeeName, percentage));
+            }
+
+            plotModel.Series.Add(pieSeries);
+
+            using (var stream = new MemoryStream())
+            {
+                var exporter = new PngExporter { Width = 1000, Height = 800 };
+                exporter.Export(plotModel, stream);
+                string fileName = $"piechart_{DateTime.Now.Ticks}.png";
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", fileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                {
+                    stream.Seek(0, SeekOrigin.Begin);
+                    stream.CopyTo(fileStream);
+                }
+
+                return RedirectToAction("Index", new { imagePath = $"/images/{fileName}" });
+            }
+        }
+        catch (Exception ex)
+        {
+            return View("Error", new ErrorViewModel { RequestId = $"Exception: {ex.Message}" });
+        }
+    }
 }
+

@@ -15,20 +15,29 @@
             <th>
                 <p> Hours </p>
             </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        var rowClass = (item.IsBelowWorkingHoursLimit) ? "warning" : "";
-        <tr class="@rowClass">
-            <td>
-                    @Html.DisplayFor(modelItem => item.EmployeeName)
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.TotalHoursWorked )
-            </td>
-        </tr>
-}
+        @foreach (var item in Model) {
+            var rowClass = (item.IsBelowWorkingHoursLimit) ? "warning" : "";
+            <tr class="@rowClass">
+                <td>
+                        @Html.DisplayFor(modelItem => item.EmployeeName)
+                </td>
+                <td>
+                        @Html.DisplayFor(modelItem => item.TotalHoursWorked )
+                </td>
+            </tr>
+            }
     </tbody>
 </table>
+<form action="/Employees/GeneratePieChart" method="post">
+    <button type="submit" class="btn btn-primary">Generate Pie Chart</button>
+</form>
+
+@if (!string.IsNullOrEmpty(ViewContext.HttpContext.Request.Query["imagePath"]))
+{
+    <div style="margin:20px; padding: 20px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+        <img src="@ViewContext.HttpContext.Request.Query["imagePath"]" alt="Pie Chart" style="max-width:60%; height:auto; display:block; margin:0 auto;" />
+    </div>
+}
