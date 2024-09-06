@@ -4,8 +4,6 @@ using Newtonsoft.Json;
 using OxyPlot;
 using OxyPlot.Series;
 using OxyPlot.SkiaSharp;
-using System.Globalization;
-using System.Numerics;
 
 public class EmployeesController : Controller
 {
@@ -14,7 +12,6 @@ public class EmployeesController : Controller
     {
         _httpClient = httpClient;
     }
-
     public async Task<IActionResult> Index()
     {
         try
@@ -62,13 +59,7 @@ public class EmployeesController : Controller
                             {
                                 existingEmployee.TotalHoursWorked += totalTime;
                             }
-                            if (employee.EmployeeName.Equals("Abhay Singh"))
-                            {
-                                Console.WriteLine(existingEmployee.TotalHoursWorked.ToString());
-                            }
                         }
-                        
-
                     }
                 }
                 foreach (var employee in employees)
@@ -97,7 +88,6 @@ public class EmployeesController : Controller
         decimal preciseHours = 0;
         DateTime startTime = employee.StarTimeUtc;
         DateTime endTime = employee.EndTimeUtc;
-        //TimeSpan duration = endTime - startTime;
 
         TimeSpan duration = endTime.Subtract(startTime);
         int totalMinutes = (int)duration.TotalMinutes;
@@ -105,18 +95,13 @@ public class EmployeesController : Controller
         int totalHours = totalMinutes / 60;
         int remainingMinutes = totalMinutes % 60;
         preciseHours = totalHours + (decimal)remainingMinutes / 60;
+
         if (preciseHours < 0)
         {
             preciseHours = 0;
         }
-        //double totalHours = (endTime - startTime).TotalHours;
-        //long millisecondsWorked = (long)duration.TotalMilliseconds;
 
-        //// Konvertujte milisekunde u sate
-        //totalHours = (int)(millisecondsWorked / (1000 * 60 * 60));
-
-        //totalHours = (int)duration.TotalHours;
-        return preciseHours; // Vratite totalHours ili neki drugi odgovarajući rezultat.
+        return preciseHours; 
     }
 
 
@@ -150,6 +135,7 @@ public class EmployeesController : Controller
             {
                 var exporter = new PngExporter { Width = 1000, Height = 800 };
                 exporter.Export(plotModel, stream);
+
                 string fileName = $"piechart_{DateTime.Now.Ticks}.png";
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", fileName);
 
