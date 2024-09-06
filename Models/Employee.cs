@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualBasic;
 using NuGet.Packaging.Signing;
+using System.ComponentModel.DataAnnotations;
 
 namespace C_Project.Models
 {
@@ -11,7 +12,9 @@ namespace C_Project.Models
         public DateTime EndTimeUtc { get; set; }
         public string EntryNotes { get; set; }
         public DateTime? DeletedOn { get; set; }
-        public int TotalHoursWorked { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:F0}")]
+        public decimal TotalHoursWorked { get; set; }
         public bool IsBelowWorkingHoursLimit { get; set; }
 
     }

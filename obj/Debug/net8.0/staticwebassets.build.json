@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "apDiakq36WwL93KW9vPqPu49DpiiRvPhb13LMPj5eLs=",
+  "Hash": "HkXrTXbOh0TuT+r7VAMaptjBzihNR8tqIV94hJSVZ7w=",
   "Source": "C#Project",
   "BasePath": "_content/C#Project",
   "Mode": "Default",
@@ -186,6 +186,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\piechart_638611623388871307.png"
+    },
+    {
+      "Identity": "C:\\Users\\matej\\OneDrive\\Desktop\\C Sharp\\EmployeeTimeVisualization\\wwwroot\\images\\piechart_638611623887069786.png",
+      "SourceId": "C#Project",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\matej\\OneDrive\\Desktop\\C Sharp\\EmployeeTimeVisualization\\wwwroot\\",
+      "BasePath": "_content/C#Project",
+      "RelativePath": "images/piechart_638611623887069786.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\piechart_638611623887069786.png"
     },
     {
       "Identity": "C:\\Users\\matej\\OneDrive\\Desktop\\C Sharp\\EmployeeTimeVisualization\\wwwroot\\js\\site.js",

@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 using OxyPlot;
 using OxyPlot.Series;
 using OxyPlot.SkiaSharp;
+using System.Globalization;
+using System.Numerics;
 
 public class EmployeesController : Controller
 {
@@ -19,6 +21,7 @@ public class EmployeesController : Controller
         {
             var response = await _httpClient.GetAsync("https://rc-vault-fap-live-1.azurewebsites.net/api/gettimeentries?code=vO17RnE8vuzXzPJo5eaLLjXjmRW07law99QTD90zat9FfOQJKKUcgQ==");
             if (response.IsSuccessStatusCode)
+
             {
                 var jsonData = await response.Content.ReadAsStringAsync();
                 var data = JsonConvert.DeserializeObject<List<Employee>>(jsonData);
@@ -30,7 +33,7 @@ public class EmployeesController : Controller
                     {
                         continue;
                     }
-                    else if (!employees.Any(e => e.EmployeeName == employee.EmployeeName))
+                    if (!employees.Any(e => e.EmployeeName == employee.EmployeeName))
                     {
                         Employee newEmployee = new Employee
                         {
@@ -40,29 +43,43 @@ public class EmployeesController : Controller
                             StarTimeUtc = employee.StarTimeUtc,
                             EndTimeUtc = employee.EndTimeUtc,
                             DeletedOn = employee.DeletedOn,
-                            TotalHoursWorked = employee.TotalHoursWorked,
+                            TotalHoursWorked = 0,
                         };
+                        newEmployee.TotalHoursWorked = CalculateTotalWorkedHours(newEmployee);
                         employees.Add(newEmployee);
                     }
                     else
                     {
                         var existingEmployee = employees.Find(e => e.EmployeeName == employee.EmployeeName);
-                        TimeSpan duration = existingEmployee.EndTimeUtc.Subtract(existingEmployee.StarTimeUtc);
 
-                        int totalHours = (int)duration.TotalHours;
-                        if (totalHours > 0)
+                        existingEmployee.StarTimeUtc = employee.StarTimeUtc;
+                        existingEmployee.EndTimeUtc = employee.EndTimeUtc;
+                        if (employee.StarTimeUtc < employee.EndTimeUtc)
                         {
-                            existingEmployee.TotalHoursWorked += totalHours;
+
+                            decimal totalTime = CalculateTotalWorkedHours(existingEmployee);
+                            if (totalTime > 0)
+                            {
+                                existingEmployee.TotalHoursWorked += totalTime;
+                            }
+                            if (employee.EmployeeName.Equals("Abhay Singh"))
+                            {
+                                Console.WriteLine(existingEmployee.TotalHoursWorked.ToString());
+                            }
                         }
+                        
+
                     }
                 }
                 foreach (var employee in employees)
                 {
                     employee.IsBelowWorkingHoursLimit = employee.TotalHoursWorked < 100;
+                    employee.TotalHoursWorked = (int)Math.Round(employee.TotalHoursWorked);
                 }
 
                 var sortedEmployees = employees.OrderByDescending(e => e.TotalHoursWorked).ToList();
                 TempData["Employees"] = JsonConvert.SerializeObject(sortedEmployees);
+                
                 return View(sortedEmployees);
             }
             else
@@ -75,6 +92,33 @@ public class EmployeesController : Controller
             return View("Error", new ErrorViewModel { RequestId = $"Exception: {ex.Message}" });
         }
     }
+    private decimal CalculateTotalWorkedHours(Employee employee)
+    {
+        decimal preciseHours = 0;
+        DateTime startTime = employee.StarTimeUtc;
+        DateTime endTime = employee.EndTimeUtc;
+        //TimeSpan duration = endTime - startTime;
+
+        TimeSpan duration = endTime.Subtract(startTime);
+        int totalMinutes = (int)duration.TotalMinutes;
+
+        int totalHours = totalMinutes / 60;
+        int remainingMinutes = totalMinutes % 60;
+        preciseHours = totalHours + (decimal)remainingMinutes / 60;
+        if (preciseHours < 0)
+        {
+            preciseHours = 0;
+        }
+        //double totalHours = (endTime - startTime).TotalHours;
+        //long millisecondsWorked = (long)duration.TotalMilliseconds;
+
+        //// Konvertujte milisekunde u sate
+        //totalHours = (int)(millisecondsWorked / (1000 * 60 * 60));
+
+        //totalHours = (int)duration.TotalHours;
+        return preciseHours; // Vratite totalHours ili neki drugi odgovarajući rezultat.
+    }
+
 
     [HttpPost]
     public IActionResult GeneratePieChart()
@@ -82,7 +126,7 @@ public class EmployeesController : Controller
         try
         {
             var employees = JsonConvert.DeserializeObject<List<Employee>>(TempData["Employees"].ToString());
-            int totalHoursWorked = employees.Sum(e => e.TotalHoursWorked);
+            decimal totalHoursWorked = employees.Sum(e => e.TotalHoursWorked);
 
             var plotModel = new PlotModel { Title = "Pie Chart" };
             var pieSeries = new PieSeries
@@ -96,7 +140,7 @@ public class EmployeesController : Controller
 
             foreach (var employee in employees)
             {
-                float percentage = (float)employee.TotalHoursWorked / totalHoursWorked * 100;
+                float percentage = (float)employee.TotalHoursWorked / (int)totalHoursWorked * 100;
                 pieSeries.Slices.Add(new PieSlice(employee.EmployeeName, percentage));
             }
 
